@@ -150,8 +150,8 @@ export default function LoginPage() {
                         <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Access your leave management dashboard</p>
                     </div>
 
-                    {/* Card */}
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-green-lg p-7 space-y-5">
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-green-lg p-7 space-y-5">
 
                         {error && (
                             <div className="flex items-center gap-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl">
@@ -201,8 +201,7 @@ export default function LoginPage() {
 
                         {/* Submit */}
                         <button
-                            type="button"
-                            onClick={handleSubmit}
+                            type="submit"
                             disabled={loading}
                             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-sm shadow-green-md hover:shadow-green-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
                         >
@@ -219,7 +218,7 @@ export default function LoginPage() {
                                 Register here
                             </Link>
                         </p>
-                    </div>
+                    </form>
 
 
                 </div>
