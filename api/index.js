@@ -12,7 +12,7 @@ connectDB();
 
 const app = express();
 
-// Middlewares
+// Allowed Origins
 const rawOrigins = [
     process.env.CLIENT_URL,
     'https://leave-sync-f2em.vercel.app',
@@ -20,7 +20,7 @@ const rawOrigins = [
     'http://localhost:5173'
 ].filter(Boolean);
 
-// Normalize origins: Ensure protocol exists and remove trailing slashes
+// Normalize origins
 const allowedOrigins = rawOrigins.map(url => {
     let normalized = url.trim().replace(/\/$/, '');
     if (!normalized.startsWith('http')) {
@@ -29,60 +29,80 @@ const allowedOrigins = rawOrigins.map(url => {
     return normalized;
 });
 
+// CORS Configuration
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
         const normalizedOrigin = origin.trim().replace(/\/$/, '');
 
-        const isAllowed = allowedOrigins.includes(normalizedOrigin) ||
-            (process.env.NODE_ENV === 'development' && /^http:\/\/localhost:\d+$/.test(normalizedOrigin)) ||
-            (normalizedOrigin.endsWith('.vercel.app'));
+        const isAllowed =
+            allowedOrigins.includes(normalizedOrigin) ||
+            (process.env.NODE_ENV === 'development' &&
+                /^http:\/\/localhost:\d+$/.test(normalizedOrigin)) ||
+            normalizedOrigin.endsWith('.vercel.app');
 
         if (isAllowed) {
             callback(null, true);
         } else {
-            console.error(`CORS Blocked for origin: ${origin}`);
+            console.error(`❌ CORS Blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
 }));
+
+// Body Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-if (process.env.NODE_ENV === 'development') {
+// Logger
+if (process.env.NODE_ENV !== 'production') {
     app.use(morgan('dev'));
 }
 
-// Health Check
+// Health Check Route
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+    res.status(200).json({
+        success: true,
+        status: 'OK',
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString()
+    });
 });
 
-// Routes - Adjusted paths for api/ folder
+// Routes
 app.use('/api/auth', require('../server/routes/authRoutes'));
 app.use('/api/users', require('../server/routes/userRoutes'));
 app.use('/api/leaves', require('../server/routes/leaveRoutes'));
 app.use('/api/reimbursements', require('../server/routes/reimbursementRoutes'));
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+// Root Route
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'LeaveSync Backend Running 🚀'
+    });
 });
 
-// Global error handler
+// 404 Handler
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`
+    });
+});
+
+// Global Error Handler
 app.use(errorHandler);
 
+// Start Server
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on port ${PORT}`);
-        console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`🌐 API: http://localhost:${PORT}/api\n`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
+// Export App
 module.exports = app;
