@@ -72,10 +72,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/auth', require('../server/routes/authRoutes'));
-app.use('/api/users', require('../server/routes/userRoutes'));
-app.use('/api/leaves', require('../server/routes/leaveRoutes'));
-app.use('/api/reimbursements', require('../server/routes/reimbursementRoutes'));
+const apiRouter = express.Router();
+apiRouter.use('/auth', require('../server/routes/authRoutes'));
+apiRouter.use('/users', require('../server/routes/userRoutes'));
+apiRouter.use('/leaves', require('../server/routes/leaveRoutes'));
+apiRouter.use('/reimbursements', require('../server/routes/reimbursementRoutes'));
+
+// Mount router under both prefixes to handle both local dev and Vercel's mounting behavior
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // Root Route
 app.get('/', (req, res) => {
