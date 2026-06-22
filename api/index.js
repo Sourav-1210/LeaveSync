@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const connectDB = require('./server/config/db');
-const errorHandler = require('./server/middleware/errorHandler');
+const connectDB = require('../server/config/db');
+const errorHandler = require('../server/middleware/errorHandler');
 
 dotenv.config();
 
@@ -61,11 +61,11 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use('/api/auth', require('./server/routes/authRoutes'));
-app.use('/api/users', require('./server/routes/userRoutes'));
-app.use('/api/leaves', require('./server/routes/leaveRoutes'));
-app.use('/api/reimbursements', require('./server/routes/reimbursementRoutes'));
+// Routes - Adjusted paths for api/ folder
+app.use('/api/auth', require('../server/routes/authRoutes'));
+app.use('/api/users', require('../server/routes/userRoutes'));
+app.use('/api/leaves', require('../server/routes/leaveRoutes'));
+app.use('/api/reimbursements', require('../server/routes/reimbursementRoutes'));
 
 // 404 handler
 app.use((req, res) => {
