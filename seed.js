@@ -26,14 +26,11 @@ async function seed() {
         await mongoose.connect(MONGO_URI);
         console.log('✅ Connected to MongoDB Atlas');
 
+        await User.deleteMany({ email: { $in: DEMO_USERS.map(u => u.email) } });
+        console.log('🧹 Cleaned up existing demo users');
+
         for (const u of DEMO_USERS) {
-            const exists = await User.findOne({ email: u.email });
-            if (exists) {
-                console.log(`⚠️  ${u.email} already exists — skipping`);
-                continue;
-            }
-            const hashed = await bcrypt.hash(u.password, 12);
-            await User.create({ ...u, password: hashed });
+            await User.create(u);
             console.log(`✅ Created: ${u.role.toUpperCase()} — ${u.email}`);
         }
 
